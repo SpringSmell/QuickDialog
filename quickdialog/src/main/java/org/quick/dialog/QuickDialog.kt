@@ -9,7 +9,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.*
 import androidx.annotation.LayoutRes
-import org.quick.viewHolder.QuickVH
+import org.quick.viewHolder.ViewHolder
 
 /**
  * @describe 快速使用自定义Dialog
@@ -23,7 +23,7 @@ open class QuickDialog private constructor() {
     private val defaultPadding = 100
     lateinit var builder: Builder
     private var dialog: Dialog? = null
-    private var holder: QuickVH? = null
+    private var holder: ViewHolder? = null
 
     private fun setupQuickDialog(builder: Builder): QuickDialog {
         this.builder = builder
@@ -31,18 +31,18 @@ open class QuickDialog private constructor() {
     }
 
     @SuppressLint("ResourceType")
-    private fun createViewHolder(): QuickVH {
+    private fun createViewHolder(): ViewHolder {
         assert(builder.resId != -1 || builder.layoutView != null)
         when {
             builder.layoutView != null ->
                 if (holder?.itemView != builder.layoutView)
-                    holder = QuickVH(builder.layoutView!!)
+                    holder = ViewHolder(builder.layoutView!!)
 
             builder.resId != -1 -> {
                 if (holder == null || holder?.itemView?.id != builder.resId || holder!!.itemView.context != builder.context) {
                     val tempView = LayoutInflater.from(builder.context).inflate(builder.resId, null)
                     tempView.id = builder.resId
-                    holder = QuickVH(tempView)
+                    holder = ViewHolder(tempView)
                 }
             }
         }
@@ -93,7 +93,7 @@ open class QuickDialog private constructor() {
         dialog?.dismiss()
     }
 
-    fun show(onAfterListener: ((dialog: Dialog, holder: QuickVH) -> Unit)? = null): QuickVH {
+    fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder {
         if (Utils.checkActivityIsRunning(builder.context as Activity)) {
             createDialog().show()
         }
@@ -140,9 +140,9 @@ open class QuickDialog private constructor() {
         internal var paddingBottom = 0
         internal var isBlockBackKey = false/*屏蔽返回键*/
         /*初始化完成调用*/
-        internal var onInitListener: ((dialog: Dialog, holder: QuickVH) -> Unit)? = null
+        internal var onInitListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null
         /*弹窗消失调用*/
-        internal var onDismissListener: ((dialog: Dialog, iDialog: DialogInterface, holder: QuickVH) -> Unit)? =
+        internal var onDismissListener: ((dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit)? =
             null
 
         fun setAnimStyle(animStyle: Int): Builder {
@@ -201,17 +201,17 @@ open class QuickDialog private constructor() {
 
         fun createViewHolder() = build().createViewHolder()
 
-        fun setOnInitListener(onInitListener: (dialog: Dialog, holder: QuickVH) -> Unit): Builder {
+        fun setOnInitListener(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit): Builder {
             this.onInitListener = onInitListener
             return this
         }
 
-        fun setOnDismissListener(onDismissListener: (dialog: Dialog, iDialog: DialogInterface, holder: QuickVH) -> Unit): Builder {
+        fun setOnDismissListener(onDismissListener: (dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit): Builder {
             this.onDismissListener = onDismissListener
             return this
         }
 
-        fun show(onAfterListener: ((dialog: Dialog, holder: QuickVH) -> Unit)? = null): QuickVH = ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
+        fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder = ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
 
         fun dismiss() {
             QuickDialog.dismiss()

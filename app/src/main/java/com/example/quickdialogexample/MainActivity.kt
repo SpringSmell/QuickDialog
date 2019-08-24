@@ -7,6 +7,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.quick.dialog.QuickDialog
+import org.quick.viewHolder.ViewHolder
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,11 +30,10 @@ class MainActivity : AppCompatActivity() {
                 .setOnDismissListener { dialog, iDialog, holder ->
                     Log.e("QuickDialog", "弹窗消失")
                 }
-                .show()
+                .show{dialog, holder ->
+                    holder.itemView
+                }
         }
-//        closeActionTv.setOnClickListener {
-//            QuickDialog.dismiss()
-//        }
     }
 
 
