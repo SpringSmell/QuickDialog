@@ -125,7 +125,7 @@ open class QuickDialog private constructor() {
         val INSTANCE = QuickDialog()
     }
 
-    class Builder constructor(val context: Context?, @LayoutRes var resId: Int = -1, var style: Int = 0) {
+    class Builder constructor(internal val context: Context?, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
         internal var animStyle = -1
         internal val defaultPadding = -1
         internal var layoutView: View? = null
@@ -145,7 +145,7 @@ open class QuickDialog private constructor() {
         internal var onDismissListener: ((dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit)? =
             null
 
-        fun setAnimStyle(animStyle: Int): Builder {
+        fun animStyle(animStyle: Int): Builder {
             this.animStyle = animStyle
             return this
         }
@@ -153,12 +153,12 @@ open class QuickDialog private constructor() {
         /**
          * 屏蔽返回键
          */
-        fun setBlockBackKey(isBlockBackKey: Boolean): Builder {
+        fun blockBackKey(isBlockBackKey: Boolean): Builder {
             this.isBlockBackKey = isBlockBackKey
             return this
         }
 
-        fun setCanceledOnTouchOutside(canceledOnTouchOutside: Boolean): Builder {
+        fun canceledOnTouchOutside(canceledOnTouchOutside: Boolean): Builder {
             this.canceledOnTouchOutside = canceledOnTouchOutside
             return this
         }
@@ -171,7 +171,7 @@ open class QuickDialog private constructor() {
             return this
         }
 
-        fun setSize(width: Int, height: Int): Builder {
+        fun size(width: Int, height: Int): Builder {
             this.width = width
             this.height = height
             if (paddingLeft == defaultPadding) paddingLeft = 0
@@ -179,7 +179,7 @@ open class QuickDialog private constructor() {
             return this
         }
 
-        fun setGravity(gravity: Int): Builder {
+        fun gravity(gravity: Int): Builder {
             this.gravity = gravity
             return this
         }
@@ -201,12 +201,12 @@ open class QuickDialog private constructor() {
 
         fun createViewHolder() = build().createViewHolder()
 
-        fun setOnInitListener(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit): Builder {
+        fun onInit(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit): Builder {
             this.onInitListener = onInitListener
             return this
         }
 
-        fun setOnDismissListener(onDismissListener: (dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit): Builder {
+        fun onDismiss(onDismissListener: (dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit): Builder {
             this.onDismissListener = onDismissListener
             return this
         }
