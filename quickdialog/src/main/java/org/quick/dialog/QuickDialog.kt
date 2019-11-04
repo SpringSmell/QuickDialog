@@ -21,14 +21,11 @@ import org.quick.viewHolder.ViewHolder
 open class QuickDialog private constructor() {
 
     private val defaultPadding = 100
-    lateinit var builder: Builder
     private var dialog: Dialog? = null
     private var holder: ViewHolder? = null
+    lateinit var builder: Builder
 
-    private fun setupQuickDialog(builder: Builder): QuickDialog {
-        this.builder = builder
-        return this
-    }
+    private fun setupQuickDialog(builder: Builder) = also { this.builder = builder }
 
     @SuppressLint("ResourceType")
     private fun createViewHolder(): ViewHolder {
@@ -39,10 +36,10 @@ open class QuickDialog private constructor() {
                     holder = ViewHolder(builder.layoutView!!)
 
             builder.resId != -1 -> {
-                if (holder == null || holder?.itemView?.id != builder.resId || holder!!.itemView.context != builder.context) {
-                    val tempView = LayoutInflater.from(builder.context).inflate(builder.resId, null)
-                    tempView.id = builder.resId
-                    holder = ViewHolder(tempView)
+                if (holder == null || holder?.itemView?.tag != builder.resId || holder!!.itemView.context != builder.context) {
+                    holder = ViewHolder(LayoutInflater.from(builder.context).inflate(builder.resId, null).apply {
+                        tag = builder.resId
+                    })
                 }
             }
         }
@@ -50,38 +47,64 @@ open class QuickDialog private constructor() {
     }
 
     private fun createDialog(): Dialog {
-        if (checkEqualDialog()) {
-            dialog = Dialog(builder.context!!, builder.style)
-            dialog?.setContentView(createViewHolder().itemView)
-            dialog!!.setOnKeyListener { dialog, keyCode, _ ->
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    if (!builder.isBlockBackKey) dialog!!.dismiss()
-                    else return@setOnKeyListener true
-                }
-                return@setOnKeyListener false
-            }
-            dialog?.setOnDismissListener {
-                builder.onDismissListener?.invoke(dialog!!, it, createViewHolder())
-            }
-            builder.onInitListener?.invoke(dialog!!, createViewHolder())
-        }
+        if (isCreate()) {
+            builder.run {
+                dialog = Dialog(context, style).apply {
+                    val isBlockBackKey = isBlockBackKey
+                    setContentView(createViewHolder().itemView)
+                    setOnKeyListener { dialog, keyCode, _ ->
+                        if (keyCode == KeyEvent.KEYCODE_BACK) {
+                            if (!isBlockBackKey)
+                                dialog.dismiss()
+                            else
+                                return@setOnKeyListener true
+                        }
+                        return@setOnKeyListener false
+                    }
 
-        dialog?.window?.setGravity(builder.gravity)
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog?.window?.setLayout(builder.width, builder.height)
-        dialog?.window?.setWindowAnimations(builder.animStyle)
-        dialog?.window?.decorView?.setPadding(
-            if (builder.paddingLeft == builder.defaultPadding) defaultPadding else builder.paddingLeft,
-            builder.paddingTop,
-            if (builder.paddingRight == builder.defaultPadding) defaultPadding else builder.paddingRight,
-            builder.paddingBottom
-        )
-        dialog?.setCanceledOnTouchOutside(builder.canceledOnTouchOutside)
+                    setOnDismissListener(onDismissListener)
+                    onInitListener?.invoke(this, createViewHolder())
+                }
+            }
+        }
+        dialog?.run {
+            builder.run {
+                window?.run {
+                    setGravity(gravity)
+                    setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    setLayout(width, height)
+                    setWindowAnimations(animStyle)
+                    decorView.setPadding(
+                        if (paddingLeft == -1) defaultPadding else paddingLeft,
+                        paddingTop,
+                        if (paddingRight == -1) defaultPadding else paddingRight,
+                        paddingBottom
+                    )
+                }
+                setCanceledOnTouchOutside(canceledOnTouchOutside)
+            }
+        }
         return dialog!!
     }
 
-    private fun checkEqualDialog() =
-        builder.isRewrite || dialog == null || (builder.layoutView != null && holder?.itemView != builder.layoutView) || (builder.resId != -1 && holder?.itemView?.id != builder.resId) || contextChange()
+    /**
+     * 是否创建Dialog
+     */
+    private fun isCreate() =
+        when {
+            builder.isRewrite ->
+                true
+            dialog == null ->
+                true
+            builder.layoutView != null && holder?.itemView != builder.layoutView ->
+                true
+            builder.resId != -1 && holder?.itemView?.tag != builder.resId ->
+                true
+            contextChange() ->
+                true
+            else ->
+                false
+        }
 
     /**
      * context变化
@@ -89,6 +112,9 @@ open class QuickDialog private constructor() {
     private fun contextChange() =
         dialog != null && (if (dialog!!.context is ContextThemeWrapper) (dialog!!.context as ContextThemeWrapper).baseContext else dialog!!.context) != builder.context
 
+    /**
+     * 解散当前的弹框
+     */
     fun dismiss() {
         dialog?.dismiss()
     }
@@ -125,96 +151,76 @@ open class QuickDialog private constructor() {
         val INSTANCE = QuickDialog()
     }
 
-    class Builder constructor(internal val context: Context?, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
+    /**
+     * @param resId 资源ID
+     * @param style 主题风格
+     */
+    class Builder constructor(internal val context: Context, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
+
         internal var animStyle = -1
-        internal val defaultPadding = -1
         internal var layoutView: View? = null
         internal var width = WindowManager.LayoutParams.MATCH_PARENT
         internal var height = WindowManager.LayoutParams.WRAP_CONTENT
         internal var gravity = Gravity.CENTER
         internal var canceledOnTouchOutside = true
-        internal var isRewrite = false/*是否每次都重新创建dialog*/
-        internal var paddingLeft = defaultPadding
-        internal var paddingRight = defaultPadding
+        /*是否每次都重新创建dialog*/
+        internal var isRewrite = false
+        internal var paddingLeft = -1
+        internal var paddingRight = -1
         internal var paddingTop = 0
         internal var paddingBottom = 0
         internal var isBlockBackKey = false/*屏蔽返回键*/
         /*初始化完成调用*/
         internal var onInitListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null
         /*弹窗消失调用*/
-        internal var onDismissListener: ((dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit)? =
-            null
+        internal var onDismissListener: ((dialog:DialogInterface)->Unit)? = null
 
-        fun animStyle(animStyle: Int): Builder {
-            this.animStyle = animStyle
-            return this
-        }
+        /**
+         * 动画效果
+         */
+        fun animStyle(animStyle: Int) = also { this.animStyle = animStyle }
 
         /**
          * 屏蔽返回键
          */
-        fun blockBackKey(isBlockBackKey: Boolean): Builder {
-            this.isBlockBackKey = isBlockBackKey
-            return this
-        }
+        fun blockBackKey(isBlockBackKey: Boolean) = also { this.isBlockBackKey = isBlockBackKey }
 
-        fun canceledOnTouchOutside(canceledOnTouchOutside: Boolean): Builder {
-            this.canceledOnTouchOutside = canceledOnTouchOutside
-            return this
-        }
+        fun canceledOnTouchOutside(canceledOnTouchOutside: Boolean) = also { this.canceledOnTouchOutside = canceledOnTouchOutside }
 
-        fun setPadding(left: Int, top: Int, right: Int, bottom: Int): Builder {
+        fun gravity(gravity: Int) = also { this.gravity = gravity }
+
+        fun setRewrite(isRewrite: Boolean) = also { this.isRewrite = isRewrite }
+
+        fun setPadding(left: Int, top: Int, right: Int, bottom: Int) = also {
             this.paddingLeft = left
             this.paddingTop = top
             this.paddingRight = right
             this.paddingBottom = bottom
-            return this
         }
 
-        fun size(width: Int, height: Int): Builder {
+        fun size(width: Int, height: Int) = also {
             this.width = width
             this.height = height
-            if (paddingLeft == defaultPadding) paddingLeft = 0
-            if (paddingRight == defaultPadding) paddingRight = 0
-            return this
+            if (paddingLeft == -1) paddingLeft = 0
+            if (paddingRight == -1) paddingRight = 0
         }
 
-        fun gravity(gravity: Int): Builder {
-            this.gravity = gravity
-            return this
-        }
-
-        fun setLayoutView(view: View, style: Int = 0): Builder {
+        fun setLayoutView(view: View, style: Int = 0) = also {
             this.layoutView = view
             this.style = style
-            return this
-        }
-
-        fun setRewrite(isRewrite: Boolean): Builder {
-            this.isRewrite = isRewrite
-            return this
         }
 
         fun build() = ClassHolder.INSTANCE.setupQuickDialog(this)
 
-        fun createDialog(): Dialog = ClassHolder.INSTANCE.setupQuickDialog(this).createDialog()
+        fun createDialog(): Dialog = build().createDialog()
 
         fun createViewHolder() = build().createViewHolder()
 
-        fun onInit(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit): Builder {
-            this.onInitListener = onInitListener
-            return this
-        }
+        fun onInit(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit) = also { this.onInitListener = onInitListener }
 
-        fun onDismiss(onDismissListener: (dialog: Dialog, iDialog: DialogInterface, holder: ViewHolder) -> Unit): Builder {
-            this.onDismissListener = onDismissListener
-            return this
-        }
+        fun onDismiss(onDismissListener: (dialog:DialogInterface)->Unit) = also { this.onDismissListener = onDismissListener }
 
-        fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder = ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
-
-        fun dismiss() {
-            QuickDialog.dismiss()
-        }
+        fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder =
+            build().show(onAfterListener)
     }
 }
