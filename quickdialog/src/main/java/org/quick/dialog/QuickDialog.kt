@@ -71,10 +71,10 @@ open class QuickDialog private constructor() {
         dialog?.window?.setLayout(builder.width, builder.height)
         dialog?.window?.setWindowAnimations(builder.animStyle)
         dialog?.window?.decorView?.setPadding(
-            if (builder.paddingLeft == builder.defaultPadding) defaultPadding else builder.paddingLeft,
-            builder.paddingTop,
-            if (builder.paddingRight == builder.defaultPadding) defaultPadding else builder.paddingRight,
-            builder.paddingBottom
+            dip2px((if (builder.paddingLeft == builder.defaultPadding) defaultPadding else builder.paddingLeft).toFloat()),
+            dip2px(builder.paddingTop.toFloat()),
+            dip2px((if (builder.paddingRight == builder.defaultPadding) defaultPadding else builder.paddingRight).toFloat()),
+            dip2px(builder.paddingBottom.toFloat())
         )
         dialog?.setCanceledOnTouchOutside(builder.canceledOnTouchOutside)
         return dialog!!
@@ -101,6 +101,9 @@ open class QuickDialog private constructor() {
         return createViewHolder()
     }
 
+    fun dip2px(value: Float): Int =
+        (value * builder.context!!.resources.displayMetrics.density + 0.5f).toInt()
+
     fun resetInternal() {
         dialog = null
         holder = null
@@ -125,7 +128,10 @@ open class QuickDialog private constructor() {
         val INSTANCE = QuickDialog()
     }
 
-    class Builder constructor(internal val context: Context?, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
+    class Builder constructor(
+        val context: Context?, @LayoutRes internal var resId: Int = -1,
+        internal var style: Int = 0
+    ) {
         internal var animStyle = -1
         internal val defaultPadding = -1
         internal var layoutView: View? = null
@@ -211,7 +217,8 @@ open class QuickDialog private constructor() {
             return this
         }
 
-        fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder = ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
+        fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder =
+            ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
 
         fun dismiss() {
             QuickDialog.dismiss()
