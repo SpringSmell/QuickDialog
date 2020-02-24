@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         openActionTv.setOnClickListener {
-            QuickDialog.Builder(this@MainActivity, R.layout.dialog_main, R.style.dialogBottomUp)
+            QuickDialog.Builder(this@MainActivity, R.layout.dialog_main)
                 .animStyle(R.style.dialogAnimBottom2Up)
                 .blockBackKey(true)/*阻塞返回键*/
                 .canceledOnTouchOutside(false)
