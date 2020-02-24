@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
                         QuickDialog.dismiss()
                     }, R.id.closeActionTv)
                 }
-                .onDismiss { dialog, iDialog, holder ->
+                .onDismiss {
                     Log.e("QuickDialog", "弹窗消失")
                 }
                 .show{dialog, holder ->
