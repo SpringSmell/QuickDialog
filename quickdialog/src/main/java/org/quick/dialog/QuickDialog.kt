@@ -20,7 +20,7 @@ import org.quick.viewHolder.ViewHolder
  */
 open class QuickDialog private constructor() {
 
-    private val defaultPadding = 100
+    private val defaultPadding = 30
     private var dialog: Dialog? = null
     private var holder: ViewHolder? = null
     lateinit var builder: Builder
