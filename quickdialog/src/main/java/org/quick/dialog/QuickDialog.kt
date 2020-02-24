@@ -37,9 +37,13 @@ open class QuickDialog private constructor() {
 
             builder.resId != -1 -> {
                 if (holder == null || holder?.itemView?.tag != builder.resId || holder!!.itemView.context != builder.context) {
-                    holder = ViewHolder(LayoutInflater.from(builder.context).inflate(builder.resId, null).apply {
-                        tag = builder.resId
-                    })
+                    holder = ViewHolder(
+                        LayoutInflater.from(builder.context).inflate(
+                            builder.resId,
+                            null
+                        ).apply {
+                            tag = builder.resId
+                        })
                 }
             }
         }
@@ -84,21 +88,6 @@ open class QuickDialog private constructor() {
                 setCanceledOnTouchOutside(canceledOnTouchOutside)
             }
         }
-<<<<<<< HEAD
-
-        dialog?.window?.setGravity(builder.gravity)
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog?.window?.setLayout(builder.width, builder.height)
-        dialog?.window?.setWindowAnimations(builder.animStyle)
-        dialog?.window?.decorView?.setPadding(
-            dip2px((if (builder.paddingLeft == builder.defaultPadding) defaultPadding else builder.paddingLeft).toFloat()),
-            dip2px(builder.paddingTop.toFloat()),
-            dip2px((if (builder.paddingRight == builder.defaultPadding) defaultPadding else builder.paddingRight).toFloat()),
-            dip2px(builder.paddingBottom.toFloat())
-        )
-        dialog?.setCanceledOnTouchOutside(builder.canceledOnTouchOutside)
-=======
->>>>>>> 1b829bf0984e31b993c6dfb5b40583f360467ba7
         return dialog!!
     }
 
@@ -143,7 +132,7 @@ open class QuickDialog private constructor() {
     }
 
     fun dip2px(value: Float): Int =
-        (value * builder.context!!.resources.displayMetrics.density + 0.5f).toInt()
+        (value * builder.context.resources.displayMetrics.density + 0.5f).toInt()
 
     fun resetInternal() {
         dialog = null
@@ -169,19 +158,11 @@ open class QuickDialog private constructor() {
         val INSTANCE = QuickDialog()
     }
 
-<<<<<<< HEAD
-    class Builder constructor(
-        val context: Context?, @LayoutRes internal var resId: Int = -1,
-        internal var style: Int = 0
-    ) {
-=======
     /**
      * @param resId 资源ID
      * @param style 主题风格
      */
-    class Builder constructor(internal val context: Context, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
-
->>>>>>> 1b829bf0984e31b993c6dfb5b40583f360467ba7
+    class Builder constructor(val context: Context, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
         internal var animStyle = -1
         internal var layoutView: View? = null
         internal var width = WindowManager.LayoutParams.MATCH_PARENT
@@ -198,7 +179,7 @@ open class QuickDialog private constructor() {
         /*初始化完成调用*/
         internal var onInitListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null
         /*弹窗消失调用*/
-        internal var onDismissListener: ((dialog:DialogInterface)->Unit)? = null
+        internal var onDismissListener: ((dialog: DialogInterface) -> Unit)? = null
 
         /**
          * 动画效果
@@ -210,7 +191,8 @@ open class QuickDialog private constructor() {
          */
         fun blockBackKey(isBlockBackKey: Boolean) = also { this.isBlockBackKey = isBlockBackKey }
 
-        fun canceledOnTouchOutside(canceledOnTouchOutside: Boolean) = also { this.canceledOnTouchOutside = canceledOnTouchOutside }
+        fun canceledOnTouchOutside(canceledOnTouchOutside: Boolean) =
+            also { this.canceledOnTouchOutside = canceledOnTouchOutside }
 
         fun gravity(gravity: Int) = also { this.gravity = gravity }
 
@@ -241,19 +223,18 @@ open class QuickDialog private constructor() {
 
         fun createViewHolder() = build().createViewHolder()
 
-        fun onInit(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit) = also { this.onInitListener = onInitListener }
+        fun onInit(onInitListener: (dialog: Dialog, holder: ViewHolder) -> Unit) =
+            also { this.onInitListener = onInitListener }
 
-        fun onDismiss(onDismissListener: (dialog:DialogInterface)->Unit) = also { this.onDismissListener = onDismissListener }
+        fun onDismiss(onDismissListener: (dialog: DialogInterface) -> Unit) =
+            also { this.onDismissListener = onDismissListener }
 
         fun show(onAfterListener: ((dialog: Dialog, holder: ViewHolder) -> Unit)? = null): ViewHolder =
-<<<<<<< HEAD
-            ClassHolder.INSTANCE.setupQuickDialog(this).show(onAfterListener)
+            build().show(onAfterListener)
 
         fun dismiss() {
             QuickDialog.dismiss()
         }
-=======
-            build().show(onAfterListener)
->>>>>>> 1b829bf0984e31b993c6dfb5b40583f360467ba7
+
     }
 }

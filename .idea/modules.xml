@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/QuickDialog.iml" filepath="$PROJECT_DIR$/QuickDialog.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/QuickDialog-app.iml" filepath="$PROJECT_DIR$/app/QuickDialog-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/quickdialog/QuickDialog-quickdialog.iml" filepath="$PROJECT_DIR$/quickdialog/QuickDialog-quickdialog.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/project-QuickDialog.iml" filepath="$PROJECT_DIR$/project-QuickDialog.iml" />
       <module fileurl="file://$PROJECT_DIR$/quickdialog/quickdialog.iml" filepath="$PROJECT_DIR$/quickdialog/quickdialog.iml" />
