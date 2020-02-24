@@ -20,7 +20,6 @@ import org.quick.viewHolder.ViewHolder
  */
 open class QuickDialog private constructor() {
 
-    private val defaultPadding = 30
     private var dialog: Dialog? = null
     private var holder: ViewHolder? = null
     lateinit var builder: Builder
@@ -79,10 +78,10 @@ open class QuickDialog private constructor() {
                     setLayout(width, height)
                     setWindowAnimations(animStyle)
                     decorView.setPadding(
-                        if (paddingLeft == -1) defaultPadding else paddingLeft,
-                        paddingTop,
-                        if (paddingRight == -1) defaultPadding else paddingRight,
-                        paddingBottom
+                        dip2px((if (paddingLeft == -1) defaultPadding else paddingLeft).toFloat()),
+                        dip2px(paddingTop.toFloat()),
+                        dip2px((if (paddingRight == -1) defaultPadding else paddingRight).toFloat()),
+                        dip2px(paddingBottom.toFloat())
                     )
                 }
                 setCanceledOnTouchOutside(canceledOnTouchOutside)
@@ -140,7 +139,7 @@ open class QuickDialog private constructor() {
     }
 
     companion object {
-
+        const val defaultPadding = 30
         fun dismiss() {
             ClassHolder.INSTANCE.dismiss()
         }
@@ -162,7 +161,10 @@ open class QuickDialog private constructor() {
      * @param resId 资源ID
      * @param style 主题风格
      */
-    class Builder constructor(val context: Context, @LayoutRes internal var resId: Int = -1, internal var style: Int = 0) {
+    class Builder constructor(
+        val context: Context, @LayoutRes internal var resId: Int = -1,
+        internal var style: Int = 0
+    ) {
         internal var animStyle = -1
         internal var layoutView: View? = null
         internal var width = WindowManager.LayoutParams.MATCH_PARENT
